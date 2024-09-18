@@ -8,7 +8,7 @@ public class Launcher{
 
 		ArrayList<Process> processes = new ArrayList<Process>();
 
-		for(int i=0; i<Process.maxNbProcess; i++) {
+		for(int i=0; i<Com.maxNbProcess; i++) {
 			processes.add(new Process("P"+i));
 		}
 
@@ -18,11 +18,11 @@ public class Launcher{
 			e.printStackTrace();
 		}
 
-		for(int i=0; i<Process.maxNbProcess; i++) {
+		for(int i=0; i<Com.maxNbProcess; i++) {
 			processes.get(i).stop();
 		}
 
-		for(int i=0; i<Process.maxNbProcess; i++) {
+		for(int i=0; i<Com.maxNbProcess; i++) {
 			processes.get(i).waitStoped();
 		}
 	}

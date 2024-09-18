@@ -6,25 +6,22 @@ public class Process  implements Runnable {
 	private Thread thread;
 	private boolean alive;
 	private boolean dead;
-	public static final int maxNbProcess = 3;
-	private static int nbProcess = 0;
-	private int id = Process.nbProcess++;
-	private State tokenState = State.Null;
-	private Comm com;
+	private Com com;
 
 	public Process(String name){
+		this.com = new Com(this);
+
 		this.thread = new Thread(this);
 		this.thread.setName(name);
 		this.alive = true;
 		this.dead = false;
 		this.thread.start();
-		this.com = new Comm(this);
 	}
 
 	public void run(){
 		int loop = 0;
 
-		System.out.println(Thread.currentThread().getName() + " id :" + this.id);
+		System.out.println(Thread.currentThread().getName() + " id :" + this.com.getId());
 
 		while(this.alive){
 			System.out.println(Thread.currentThread().getName() + " Loop : " + loop);
@@ -64,12 +61,7 @@ public class Process  implements Runnable {
 		this.alive = false;
 	}
 
-	public int getId(){
-		return this.id;
-	}
-
 	public Thread getThread(){
 		return this.thread;
 	}
-
 }
