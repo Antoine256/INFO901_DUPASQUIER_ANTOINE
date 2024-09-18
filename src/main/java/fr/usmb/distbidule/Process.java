@@ -32,61 +32,10 @@ public class Process  implements Runnable {
 				Thread.sleep(500);
 				if (Objects.equals(this.getName(), "P0")){
 					this.com.sendTo("j'appelle 2 et je te recontacte après", 1);
-
-//					this.com.sendToSync("J'ai laissé un message à 2, je le rappellerai après, on se sychronise tous et on attaque la partie ?", 2);
-//					this.com.recevFromSync(msg, 2);
-//
-//					this.com.sendToSync("2 est OK pour jouer, on se synchronise et c'est parti!",1);
-//
-//					this.com.synchronize();
-
-//					this.com.requestSC();
-//					if (this.com.mailbox.isEmpty()){
-//						print("Catched !");
-//						this.com.broadcast("J'ai gagné !!!");
-//					}else{
-//						msg = this.com.mailbox.getMsg();
-//						print(str(msg.getSender())+" à eu le jeton en premier");
-//					}
-//					this.com.releaseSC();
-
 				}
-				if (this.getName() == "P1"){
-//					if (!this.com.mailbox.isEmpty()){
-//						this.com.mailbox.getMessage();
-//						this.com.recevFromSync(msg, 0);
-//
-//						this.com.synchronize();
-//
-//						this.com.requestSC();
-//						if (this.com.mailbox.isEmpty()){
-//							print("Catched !");
-//							this.com.broadcast("J'ai gagné !!!");
-//						}else{
-//							msg = this.com.mailbox.getMsg();
-//							print(str(msg.getSender())+" à eu le jeton en premier");
-//						}
-//						this.com.releaseSC();
-//					}
+				if (Objects.equals(this.getName(), "P1")){
+					this.com.broadcast("J'attend un appel");
 				}
-//				if(this.getName() == "P2"){
-//					this.com.recevFromSync(msg, 0);
-//					this.com.sendToSync("OK", 0);
-//
-//					this.com.synchronize();
-//
-//					this.com.requestSC();
-//					if (this.com.mailbox.isEmpty()){
-//						print("Catched !");
-//						this.com.broadcast("J'ai gagné !!!");
-//					}else{
-//						msg = this.com.mailbox.getMsg();
-//						print(str(msg.getSender())+" à eu le jeton en premier");
-//					}
-//					this.com.releaseSC();
-//				}
-
-
 			}catch(Exception e){
 				e.printStackTrace();
 			}
