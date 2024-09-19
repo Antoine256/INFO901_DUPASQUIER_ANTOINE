@@ -1,5 +1,5 @@
 package fr.usmb.distbidule;
 
 public enum State {
-    Null, Request, Critique, Release
+    Null, Request, SC, Release
 }

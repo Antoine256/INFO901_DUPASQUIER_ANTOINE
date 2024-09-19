@@ -64,4 +64,8 @@ public class Process  implements Runnable {
 	public Thread getThread(){
 		return this.thread;
 	}
+
+	public boolean isAlive(){
+		return this.alive;
+	}
 }

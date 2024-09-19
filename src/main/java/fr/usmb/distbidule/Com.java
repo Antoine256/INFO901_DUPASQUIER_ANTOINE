@@ -10,12 +10,16 @@ public class Com {
     private Process process;
     private static int nbProcess = 0;
     private int id = nbProcess++;
+    private State tokenState = State.Null;
 
     Com(Process p){
         this.horloge = 0;
         this.bus = EventBusService.getInstance();
         this.bus.registerSubscriber(this); // Auto enregistrement sur le bus afin que les methodes "@Subscribe" soient invoquees automatiquement.
         this.process = p;
+        if(id==nbProcess-1){
+            initToken();
+        }
     }
 
    public void inc_clock() {
@@ -48,7 +52,7 @@ public class Com {
         this.bus = null;
     }
 
-    // Declaration de la methode de callback invoquee lorsqu'un message de type Bidule transite sur le bus
+    // Declaration de la methode de callback invoqué lorsqu'un message de type Bidule transite sur le bus
     @Subscribe
     public void onReceive(DedicatedMessage b){
         if (b.getDest() == this.getId()){
@@ -77,16 +81,24 @@ public class Com {
 
     @Subscribe
     public void onToken(TokenMessage b){
-        //je met à jour mon horloge de lamport
-        //si on est en request dans la méthode request on attend que la variable soit en sectioncritique, quand on recoit le token on passe en section critique, quand on passe en release on passe au suivant
-        //si on est à null, on passe au suivant
-        if (b.getDest() == this.getId()){
-            if (b.getEstampillage() > this.horloge){
-                this.horloge = b.getEstampillage();
+        if (process.isAlive()){
+            //je met à jour mon horloge de lamport
+            //si on en a besoin, on le garde
+            System.out.println("Je suis "+this.process.getName()+" j'ai recu le token " + (tokenState == State.Request ? " BESOIN " : " PAS BESOIN "));
+            if (tokenState == State.Request){
+                tokenState = State.SC;
+                while (tokenState != State.Release){
+                    try{
+                        Thread.sleep(500);
+                    }catch(Exception e){
+                        e.printStackTrace();
+                    }
+                }
+            }else if (tokenState != State.Null){
+                System.out.println("Token's state of"+ this.process.getName() +" is incorrect !");
             }
-            this.horloge++;
-            System.out.println(Thread.currentThread().getName() + " receives broadcast: " + b.getMessage() + " for " + this.process.getName());
-            System.out.println(Thread.currentThread().getName() + " horloge after receive : " + this.horloge);
+            TokenMessage message = new TokenMessage(b.getToken(), (id+1)%maxNbProcess);
+            bus.postEvent(message);
         }
     }
 
@@ -108,10 +120,25 @@ public class Com {
     }
 
     public void requestSC(){
-
+        if (tokenState == State.Null){
+            tokenState = State.Request;
+        }
+        while(tokenState != State.SC){
+            try{
+                Thread.sleep(500);
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+        }
     }
 
     public void releaseSC(){
+        tokenState = State.Release;
+    }
 
+    public void initToken(){
+        Token token = new Token("Section critique");
+        TokenMessage message = new TokenMessage(token, (id+1)%maxNbProcess);
+        bus.postEvent(message);
     }
 }
