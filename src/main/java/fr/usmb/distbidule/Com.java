@@ -11,6 +11,7 @@ public class Com {
     private static int nbProcess = 0;
     private int id = nbProcess++;
     private State tokenState = State.Null;
+    private BoitAuLettre mailbox;
 
     Com(Process p){
         this.horloge = 0;
@@ -20,6 +21,7 @@ public class Com {
         if(id==nbProcess-1){
             initToken();
         }
+        this.mailbox = new BoitAuLettre();
     }
 
    public void inc_clock() {
@@ -56,7 +58,9 @@ public class Com {
     @Subscribe
     public void onReceive(DedicatedMessage b){
         if (b.getDest() == this.getId()){
+            //ajouter à la BAL
             //je met à jour mon horloge de lamport
+            mailbox.addMessage(b);
             if (b.getEstampillage() > this.horloge){
                 this.horloge = b.getEstampillage();
             }
@@ -70,6 +74,8 @@ public class Com {
     public void onBroadcast(BroadcastMessage b){
         //je met à jour mon horloge de lamport
         if (b.getNbProcess() != this.getId()) {
+            //ajouter à la boite aux lettres
+            mailbox.addMessage(b);
             if (b.getEstampillage() > this.horloge){
                 this.horloge = b.getEstampillage();
             }
@@ -81,7 +87,7 @@ public class Com {
 
     @Subscribe
     public void onToken(TokenMessage b){
-        if (process.isAlive()){
+        if (process.isAlive()){ 
             //je met à jour mon horloge de lamport
             //si on en a besoin, on le garde
             System.out.println("Je suis "+this.process.getName()+" j'ai recu le token " + (tokenState == State.Request ? " BESOIN " : " PAS BESOIN "));

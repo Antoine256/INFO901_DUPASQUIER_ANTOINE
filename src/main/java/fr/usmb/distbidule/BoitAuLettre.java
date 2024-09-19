@@ -9,5 +9,7 @@ public class BoitAuLettre {
         this.messages = new ArrayList<>();
     }
 
-
+    public void addMessage(Message m){
+        messages.add(m);
+    }
 }
