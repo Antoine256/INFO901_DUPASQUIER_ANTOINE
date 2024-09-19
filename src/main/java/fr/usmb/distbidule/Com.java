@@ -2,8 +2,11 @@ package fr.usmb.distbidule;
 
 import com.google.common.eventbus.Subscribe;
 
+import java.util.concurrent.Semaphore;
+
 public class Com {
     private EventBusService bus;
+    private Semaphore semaphore;
     private int horloge;
     private BoitAuLettre bal;
     public static final int maxNbProcess = 3;
@@ -14,22 +17,19 @@ public class Com {
     private BoitAuLettre mailbox;
 
     Com(Process p){
-        this.horloge = 0;
+        this.setClock(0);
         this.bus = EventBusService.getInstance();
         this.bus.registerSubscriber(this); // Auto enregistrement sur le bus afin que les methodes "@Subscribe" soient invoquees automatiquement.
         this.process = p;
         if(id==nbProcess-1){
             initToken();
         }
+        this.semaphore = new Semaphore(1);
         this.mailbox = new BoitAuLettre();
     }
 
-   public void inc_clock() {
-        this.horloge++;
-    }
-
     public void sendTo(Object o,int to ){
-        this.horloge++;
+        addTimetoClock(1);
         DedicatedMessage message = new DedicatedMessage(o, to);
         message.setEstampillage(this.horloge);
         bus.postEvent(message);
@@ -44,7 +44,7 @@ public class Com {
 
     public void broadcast(Object o){
         BroadcastMessage b = new BroadcastMessage(o, this.getId());
-        this.horloge++;
+        addTimetoClock(1);
         b.setEstampillage(this.horloge);
         bus.postEvent(b);
     }
@@ -62,9 +62,9 @@ public class Com {
             //je met à jour mon horloge de lamport
             mailbox.addMessage(b);
             if (b.getEstampillage() > this.horloge){
-                this.horloge = b.getEstampillage();
+                setClock(b.getEstampillage());
             }
-            this.horloge++;
+            addTimetoClock(1);
             System.out.println(Thread.currentThread().getName() + " receives: " + b.getMessage() + " for " + this.process.getName());
             System.out.println(Thread.currentThread().getName() + " horloge after receive : " + this.horloge);
         }
@@ -77,9 +77,9 @@ public class Com {
             //ajouter à la boite aux lettres
             mailbox.addMessage(b);
             if (b.getEstampillage() > this.horloge){
-                this.horloge = b.getEstampillage();
+                setClock(b.getEstampillage());
             }
-            this.horloge++;
+            addTimetoClock(1);
             System.out.println(Thread.currentThread().getName() + " receives broadcast: " + b.getMessage() + " for " + this.process.getName());
             System.out.println(Thread.currentThread().getName() + " horloge after receive : " + this.horloge);
         }
@@ -87,8 +87,7 @@ public class Com {
 
     @Subscribe
     public void onToken(TokenMessage b){
-        if (process.isAlive()){ 
-            //je met à jour mon horloge de lamport
+        if (process.isAlive()){
             //si on en a besoin, on le garde
             System.out.println("Je suis "+this.process.getName()+" j'ai recu le token " + (tokenState == State.Request ? " BESOIN " : " PAS BESOIN "));
             if (tokenState == State.Request){
@@ -113,7 +112,7 @@ public class Com {
 //        //je met à jour mon horloge de lamport
 //        if (b.getDest() == this.process.getId()){
 //            if (b.getEstampillage() > this.horloge){
-//                this.horloge = b.getEstampillage();
+//                setClock(b.getEstampillage());
 //            }
 //            this.horloge++;
 //            System.out.println(Thread.currentThread().getName() + " receives broadcast: " + b.getMessage() + " for " + this.process.getName());
@@ -146,5 +145,17 @@ public class Com {
         Token token = new Token("Section critique");
         TokenMessage message = new TokenMessage(token, (id+1)%maxNbProcess);
         bus.postEvent(message);
+    }
+
+    public void addTimetoClock(int time){
+        semaphore.tryAcquire();
+        horloge += time;
+        semaphore.release();
+    }
+
+    public void setClock(int time){
+        semaphore.tryAcquire();
+        horloge = time;
+        semaphore.release();
     }
 }
