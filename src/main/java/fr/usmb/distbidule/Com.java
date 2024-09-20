@@ -55,7 +55,8 @@ public class Com {
         message.setEstampillage(this.horloge);
         bus.postEvent(message);
         //On attend le message comme quoi il l'a bien recu
-        while (receiveResponseFrom != to){
+        lock = true;
+        while (lock){
             try{
                 Thread.sleep(500);
             }catch(Exception e){
@@ -72,7 +73,8 @@ public class Com {
      */
     public void recvFromSync(Object o,int from ){
         //On attend le message de from
-        while (receiveResponseFrom != from){
+        lock = true;
+        while (lock){
             try{
                 Thread.sleep(500);
             }catch(Exception e){
@@ -93,9 +95,10 @@ public class Com {
             message.setEstampillage(this.horloge);
             bus.postEvent(message);
             //attendre que tout le monde ait reçu le message
+            lock = true;
         }else{
             //attente du message de from
-            while(receiveSyncBroadcastFrom != from){
+            while(lock){
                 try{
                     Thread.sleep(500);
                 }catch(Exception e){
@@ -188,11 +191,8 @@ public class Com {
                 }
                 this.addTimetoClock(1);
                 lock = false;
-
             }
             if (o.getType() == SynchronizeMessageType.Recv) {
-                //Je suis la destination d'un Recv donc ca me débloque
-                //je met à jour mon horloge de lamport
                 mailbox.addMessage(o);
                 if (o.getEstampillage() > this.horloge) {
                     setClock(o.getEstampillage());
@@ -210,7 +210,7 @@ public class Com {
      * @param b {@link SyncBroadcastMessage} message reçu
      */
     @Subscribe
-    public void onSyncBroacastReceive(SyncBroadcastMessage b){
+    public void onSyncBroadcastReceive(SyncBroadcastMessage b){
         //je met à jour mon horloge de lamport
         if (b.getFrom() != this.getId()) {
             //ajouter à la boite aux lettres
@@ -219,7 +219,6 @@ public class Com {
                 setClock(b.getEstampillage());
             }
             addTimetoClock(1);
-            receiveSyncBroadcastFrom = b.getFrom();
         }
     }
 
