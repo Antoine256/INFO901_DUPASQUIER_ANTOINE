@@ -1,6 +1,8 @@
 package fr.usmb.distbidule;
 
-public class DedicatedMessage extends Message{
+import fr.usmb.distbidule.messages.Message;
+
+public class DedicatedMessage extends Message {
 
     private final int dest;
 

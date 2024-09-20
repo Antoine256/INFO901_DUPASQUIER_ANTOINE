@@ -1,4 +1,4 @@
-package fr.usmb.distbidule;
+package fr.usmb.distbidule.messages;
 
 public abstract class Message<T> {
     private int estampillage = 0;

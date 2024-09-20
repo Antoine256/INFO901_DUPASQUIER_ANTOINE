@@ -1,6 +1,6 @@
-package fr.usmb.distbidule;
+package fr.usmb.distbidule.messages;
 
-public class StringMessage extends Message<String>{
+public class StringMessage extends Message<String> {
     public StringMessage(String message){
         super(message);
     }

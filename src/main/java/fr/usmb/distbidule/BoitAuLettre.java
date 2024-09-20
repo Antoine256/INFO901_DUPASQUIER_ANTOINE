@@ -1,5 +1,7 @@
 package fr.usmb.distbidule;
 
+import fr.usmb.distbidule.messages.Message;
+
 import java.util.ArrayList;
 
 public class BoitAuLettre {

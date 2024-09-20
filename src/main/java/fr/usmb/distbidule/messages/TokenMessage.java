@@ -1,6 +1,8 @@
-package fr.usmb.distbidule;
+package fr.usmb.distbidule.messages;
 
-public class TokenMessage extends Message{
+import fr.usmb.distbidule.Token;
+
+public class TokenMessage extends Message {
     private final Token token;
     private int dest;
 

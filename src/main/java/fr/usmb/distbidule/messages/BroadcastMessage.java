@@ -1,4 +1,4 @@
-package fr.usmb.distbidule;
+package fr.usmb.distbidule.messages;
 
 public class BroadcastMessage extends Message {
 
